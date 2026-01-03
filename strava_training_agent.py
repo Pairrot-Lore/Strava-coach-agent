@@ -1,0 +1,76 @@
+"""Weekly Strava training agent entry point."""
+
+from __future__ import annotations
+
+import os
+import logging
+from pathlib import Path
+from typing import Dict
+
+from graph import run_once
+
+__all__ = ["run_once"]
+
+
+LOG_PATH = os.getenv("TRAINING_AGENT_LOG", "logs/training_agent.log")
+
+
+def configure_logging(log_path: str | None = None) -> str:
+    """Configure console + file logging for the agent."""
+    path = Path(log_path or LOG_PATH)
+    if path.parent:
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+    root_logger = logging.getLogger()
+    if not root_logger.handlers:
+        fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+        root_logger.setLevel(logging.INFO)
+
+        file_handler = logging.FileHandler(path, mode="a", encoding="utf-8")
+        file_handler.setFormatter(fmt)
+        root_logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(fmt)
+        root_logger.addHandler(stream_handler)
+
+    return str(path)
+
+
+def _load_env() -> None:
+    """Load .env if python-dotenv is available; otherwise continue."""
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv()
+    except ModuleNotFoundError:
+        # If python-dotenv isn't installed, assume the environment was exported manually.
+        pass
+
+
+def main() -> None:
+    # Load local environment so refresh credentials (client id/secret + refresh token)
+    # are available when fetching a new Strava access token.
+    _load_env()
+
+    sample_goal: Dict = {
+        "race": "Trail 25K",
+        "date": "2025-09-01",
+        "distance_km": 25,
+        "elevation_gain_m": 800,
+    }
+    log_file = configure_logging()
+    logging.getLogger(__name__).info("Starting Strava training agent; logging to %s", log_file)
+
+    run_once(
+        goal=sample_goal,
+        sessions_per_week=int(os.getenv("SESSIONS_PER_WEEK", "3")),
+        recipient_email=os.getenv("RECIPIENT_EMAIL", "lore@pairrot.eu"),
+        # If STRAVA_ACCESS_TOKEN is absent, StravaClient will refresh using
+        # STRAVA_CLIENT_ID + STRAVA_CLIENT_SECRET + STRAVA_REFRESH_TOKEN.
+        strava_token=os.getenv("STRAVA_ACCESS_TOKEN"),
+    )
+
+
+if __name__ == "__main__":
+    main()

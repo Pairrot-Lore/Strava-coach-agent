@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Logs and artifacts
+logs/
+my_graph.png
+
+# Env
+.env
+
+# OS
+.DS_Store
