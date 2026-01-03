@@ -29,35 +29,27 @@ Behavior:
 - Otherwise prints and logs the email preview.
 - Renders `my_graph.png` (Mermaid) on each run.
 
-## Schedule weekly via cron (example)
+## Automatic weekly runs (GitHub Actions)
 
-Run every Monday at 07:00 (adjust path/time as needed):
+- A ready-to-use workflow is provided in `.github/workflows/weekly-agent.yml`.
+- It runs every Monday at 07:00 UTC (and can be triggered manually).
+- Configure secrets in your repo settings:
+  - `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`
+  - `OPENAI_API_KEY`
+  - Optional SMTP (AWS SES or other): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER`, `RECIPIENT_EMAIL`
+- The workflow checks out the repo, sets up Python, installs deps, and runs `python strava_training_agent.py`.
 
-```
-0 7 * * 1 cd /Users/lorevanoudenhove/Projects/tutorials/T202512_Langgraph_Strava && \
-  source env/bin/activate && \
-  python strava_training_agent.py >> logs/cron.log 2>&1
-```
+### AWS SES SMTP quick setup (optional)
 
-Notes:
-
-- Ensure `.env` is present (or export env vars) so cron sees credentials.
-- Keep the venv path and repo path matching your setup.
-- Logs will accumulate in `logs/cron.log` (rotate as needed).
-
-## Optional scheduling alternatives
-
-- **GitHub Actions (low ops, no servers):**
-
-  - Use a scheduled workflow with `on: schedule: cron: '0 7 * * 1'` (adjust).
-  - Steps: checkout, set up Python, install deps, run `python strava_training_agent.py`.
-  - Store Strava + SMTP + OpenAI secrets in GitHub Actions Secrets.
-  - Good for lightweight jobs and easy logging.
-
-- **AWS EventBridge + Lambda/ECS (production-grade):**
-  - EventBridge Scheduler triggers weekly.
-  - Lambda runs the weekly cycle; use Secrets Manager for Strava/SMTP/OpenAI secrets.
-  - CloudWatch Logs for debugging. If deps are heavy, use an ECS Fargate scheduled task instead of Lambda.
+- In SES, create SMTP credentials and a verified sender (domain or email).
+- Use these values:
+  - `SMTP_HOST`: e.g., `email-smtp.us-east-1.amazonaws.com`
+  - `SMTP_PORT`: `587` (or `465` if you prefer SSL)
+  - `SMTP_USERNAME`: SMTP username from SES console
+  - `SMTP_PASSWORD`: SMTP password from SES console
+  - `SMTP_SENDER`: verified email/domain in SES
+  - `RECIPIENT_EMAIL`: your destination email
+- Add the SMTP values to GitHub Actions Secrets (or `.env` locally). If omitted, emails are previewed in logs/console instead of sent.
 
 ## Logging
 
@@ -71,3 +63,21 @@ Notes:
 - Graph image saved as `my_graph.png` each run.
 - Preview (generated): `![Workflow graph](my_graph.png)`
 - Diagram source (mermaid): see `diagram.md`
+ - Diagram preview:
+
+````markdown
+```mermaid
+flowchart TD
+  A([Weekly Trigger]) --> B[Sync Strava Activities]
+  B --> C[Summarize Recent Training]
+  C --> D[Evaluate Progress vs Goal]
+  D --> E[Generate Next Week Plan]
+
+  E -->|Recommendation: keep| H[Compose Weekly Email]
+  E -->|Recommendation: adjust / deload| F[Adjust Plan + Add Warnings]
+  F --> H
+
+  H --> I[Send Email]
+  I --> J([END])
+```
+````
