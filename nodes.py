@@ -279,20 +279,15 @@ def iso_now() -> str:
 def sync_strava_activities(
     state: StravaTrainingAgentState
 ) -> Dict:
-    """Fetch new Strava activities since the last sync."""
+    """Fetch Strava activities from the last 90 days."""
     _log_state("before_sync_strava_activities", state)
     client: StravaClient = _get_service("strava_client")  # type: ignore[assignment]
-    last_sync_raw = state.get("last_sync_timestamp")
-    if last_sync_raw:
-        since = parse_ts(last_sync_raw)
-    else:
-        since = datetime.now(timezone.utc) - timedelta(days=14)
+    since = datetime.now(timezone.utc) - timedelta(days=90)
 
-    logger.info("Syncing Strava activities since %s", since.isoformat())
+    logger.info("Syncing Strava activities (last 90 days) since %s", since.isoformat())
     activities = client.fetch_activities(since=since)
-    now_iso = iso_now()
-    logger.info("Synced %d activities; new last_sync_timestamp=%s", len(activities), now_iso)
-    result = {"activities": activities, "last_sync_timestamp": now_iso}
+    logger.info("Synced %d activities.", len(activities))
+    result = {"activities": activities}
     _log_state("after_sync_strava_activities", {**state, **result})
     return result
 
@@ -415,18 +410,6 @@ def evaluate_progress_vs_goal(
     result = {"evaluation": chosen}
     _log_state("after_evaluate_progress_vs_goal", {**state, **result})
     return result
-
-
-def decide_update_strategy(state: StravaTrainingAgentState) -> str:
-    """Route to the appropriate planning strategy."""
-    _log_state("before_decide_update_strategy", state)
-    evaluation = state.get("evaluation") or {}
-    recommendation = evaluation.get("recommendation") or "adjust"
-    if recommendation not in {"keep", "adjust", "deload"}:
-        return "adjust"
-    logger.info("Routing decision: %s", recommendation)
-    _log_state("after_decide_update_strategy", state)
-    return recommendation
 
 
 def generate_next_week_plan(

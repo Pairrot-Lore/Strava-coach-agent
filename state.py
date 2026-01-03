@@ -30,12 +30,9 @@ class StravaTrainingAgentState(TypedDict):
     generated_plan: List[TrainingSession] | None
     weekly_email: str | None
     run_id: str
-    last_sync_timestamp: str
 
 
-def default_state(
-    goal: Dict, sessions_per_week: int, last_sync_timestamp: str = ""
-) -> StravaTrainingAgentState:
+def default_state(goal: Dict, sessions_per_week: int) -> StravaTrainingAgentState:
     """Create a baseline state for a new LangGraph run."""
     return StravaTrainingAgentState(
         activities=None,
@@ -47,5 +44,4 @@ def default_state(
         generated_plan=None,
         weekly_email=None,
         run_id=str(uuid.uuid4()),
-        last_sync_timestamp=last_sync_timestamp,
     )

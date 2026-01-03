@@ -16,7 +16,6 @@ from nodes import (
     adjust_plan_add_warnings,
     compose_weekly_email,
     configure_services,
-    decide_update_strategy,
     evaluate_progress_vs_goal,
     generate_next_week_plan,
     send_email,
@@ -105,7 +104,7 @@ def run_once(
         logger.info("Graph saved as 'my_graph.png' in %s", os.getcwd())
     except Exception as exc:
         logger.warning("Failed to render graph PNG: %s", exc)
-    state = default_state(goal, sessions_per_week, last_sync_timestamp=os.getenv("LAST_SYNC_TIMESTAMP", ""))
+    state = default_state(goal, sessions_per_week)
     logger.info(
         "Run %s initialized for goal '%s' with %d sessions/week.",
         state["run_id"],
