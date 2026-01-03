@@ -49,6 +49,33 @@ def _load_env() -> None:
         pass
 
 
+def _goal_from_env(default_goal: Dict) -> Dict:
+    """Build goal from discrete env vars or fallback to JSON or default."""
+    race = os.getenv("TRAINING_GOAL_RACE", "").strip()
+    date = os.getenv("TRAINING_GOAL_DATE", "").strip()
+    distance = os.getenv("TRAINING_GOAL_DISTANCE_KM", "").strip()
+    elevation = os.getenv("TRAINING_GOAL_ELEVATION_GAIN_M", "").strip()
+
+    if race or date or distance or elevation:
+        goal: Dict = {
+            "race": race or default_goal.get("race", ""),
+            "date": date or default_goal.get("date", ""),
+            "distance_km": float(distance) if distance else default_goal.get("distance_km", 0),
+            "elevation_gain_m": float(elevation) if elevation else default_goal.get("elevation_gain_m", 0),
+        }
+        return goal
+
+    raw_goal = os.getenv("TRAINING_GOAL_JSON", "").strip()
+    if raw_goal:
+        try:
+            return json.loads(raw_goal)
+        except json.JSONDecodeError:
+            logging.getLogger(__name__).warning(
+                "Failed to parse TRAINING_GOAL_JSON; falling back to defaults."
+            )
+    return default_goal
+
+
 def main() -> None:
     # Load local environment so refresh credentials (client id/secret + refresh token)
     # are available when fetching a new Strava access token.
@@ -60,18 +87,7 @@ def main() -> None:
         "distance_km": 25,
         "elevation_gain_m": 800,
     }
-    raw_goal = os.getenv("TRAINING_GOAL_JSON", "").strip()
-    if raw_goal:
-        try:
-            goal: Dict = json.loads(raw_goal)
-            logging.getLogger(__name__).info("Loaded goal from TRAINING_GOAL_JSON: %s", goal)
-        except json.JSONDecodeError:
-            logging.getLogger(__name__).warning(
-                "Failed to parse TRAINING_GOAL_JSON; falling back to sample goal."
-            )
-            goal = sample_goal
-    else:
-        goal = sample_goal
+    goal = _goal_from_env(sample_goal)
     log_file = configure_logging()
     logging.getLogger(__name__).info("Starting Strava training agent; logging to %s", log_file)
 
