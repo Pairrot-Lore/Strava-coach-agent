@@ -3,14 +3,12 @@ flowchart TD
   A([Weekly Trigger]) --> B[Sync Strava Activities]
   B --> C[Summarize Recent Training]
   C --> D[Evaluate Progress vs Goal]
-  D --> E{Decide Update Strategy}
+  D --> E[Generate Next Week Plan]
 
-  E -->|On track| F[Generate Next Week Plan]
-  E -->|Behind / Missed sessions| F
-  E -->|Overload / Risk flags| G[Adjust Plan + Add Warnings]
-  G --> F
+  E -->|Recommendation: keep| H[Compose Weekly Email]
+  E -->|Recommendation: adjust / deload| F[Adjust Plan + Add Warnings]
+  F --> H
 
-  F --> H[Compose Weekly Email]
   H --> I[Send Email]
   I --> J([END])
 ```

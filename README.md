@@ -69,3 +69,5 @@ Notes:
 
 - Nodes: sync_strava_activities → summarize_recent_training → evaluate_progress_vs_goal → generate_next_week_plan → (conditional: keep → compose_weekly_email, adjust/deload → adjust_plan_add_warnings → compose_weekly_email) → send_email → END.
 - Graph image saved as `my_graph.png` each run.
+- Preview (generated): `![Workflow graph](my_graph.png)`
+- Diagram source (mermaid): see `diagram.md`
