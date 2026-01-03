@@ -44,5 +44,6 @@ jobs:
 
           # Agent config
           SESSIONS_PER_WEEK: "3"
+          TRAINING_GOAL_JSON: ${{ secrets.TRAINING_GOAL_JSON }}
         run: |
           python strava_training_agent.py

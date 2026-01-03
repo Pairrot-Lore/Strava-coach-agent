@@ -12,7 +12,7 @@ Weekly Strava training assistant that fetches activities, summarizes progress, g
    - Strava: `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN` (auto-refreshes access token), optional `STRAVA_ACCESS_TOKEN`
    - OpenAI: `OPENAI_API_KEY`
    - Email (optional; previews if unset): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER`, `RECIPIENT_EMAIL`
-   - Other: `SESSIONS_PER_WEEK` (default 3), `TRAINING_AGENT_LOG` (default `logs/training_agent.log`), `TRAINING_AGENT_STATE_LOG` (default `logs/state_snapshots.log`)
+   - Other: `SESSIONS_PER_WEEK` (default 3), `TRAINING_GOAL_JSON` (JSON goal override), `TRAINING_AGENT_LOG` (default `logs/training_agent.log`), `TRAINING_AGENT_STATE_LOG` (default `logs/state_snapshots.log`)
 
 ## Run
 
@@ -37,6 +37,7 @@ Behavior:
   - `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`
   - `OPENAI_API_KEY`
   - Optional SMTP (AWS SES or other): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER`, `RECIPIENT_EMAIL`
+  - Optional goal override: `TRAINING_GOAL_JSON` (JSON string of your goal)
 - The workflow checks out the repo, sets up Python, installs deps, and runs `python strava_training_agent.py`.
 
 ### AWS SES SMTP quick setup (optional)

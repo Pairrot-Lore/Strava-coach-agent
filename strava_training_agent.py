@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import logging
+import json
 from pathlib import Path
 from typing import Dict
 
@@ -59,11 +60,23 @@ def main() -> None:
         "distance_km": 25,
         "elevation_gain_m": 800,
     }
+    raw_goal = os.getenv("TRAINING_GOAL_JSON", "").strip()
+    if raw_goal:
+        try:
+            goal: Dict = json.loads(raw_goal)
+            logging.getLogger(__name__).info("Loaded goal from TRAINING_GOAL_JSON: %s", goal)
+        except json.JSONDecodeError:
+            logging.getLogger(__name__).warning(
+                "Failed to parse TRAINING_GOAL_JSON; falling back to sample goal."
+            )
+            goal = sample_goal
+    else:
+        goal = sample_goal
     log_file = configure_logging()
     logging.getLogger(__name__).info("Starting Strava training agent; logging to %s", log_file)
 
     run_once(
-        goal=sample_goal,
+        goal=goal,
         sessions_per_week=int(os.getenv("SESSIONS_PER_WEEK", "3")),
         recipient_email=os.getenv("RECIPIENT_EMAIL", "lore@pairrot.eu"),
         # If STRAVA_ACCESS_TOKEN is absent, StravaClient will refresh using
