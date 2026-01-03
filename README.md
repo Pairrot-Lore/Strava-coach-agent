@@ -12,7 +12,7 @@ Weekly Strava training assistant that fetches activities, summarizes progress, g
    - Strava: `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN` (auto-refreshes access token), optional `STRAVA_ACCESS_TOKEN`
    - OpenAI: `OPENAI_API_KEY`
    - Email (optional; previews if unset): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER`, `RECIPIENT_EMAIL`
-   - Other: `SESSIONS_PER_WEEK` (default 4), `TRAINING_AGENT_LOG` (default `logs/training_agent.log`), `TRAINING_AGENT_STATE_LOG` (default `logs/state_snapshots.log`)
+   - Other: `SESSIONS_PER_WEEK` (default 3), `TRAINING_AGENT_LOG` (default `logs/training_agent.log`), `TRAINING_AGENT_STATE_LOG` (default `logs/state_snapshots.log`)
 
 ## Run
 

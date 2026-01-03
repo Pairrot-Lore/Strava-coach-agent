@@ -43,6 +43,6 @@ jobs:
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
 
           # Agent config
-          SESSIONS_PER_WEEK: "4"
+          SESSIONS_PER_WEEK: "3"
         run: |
           python strava_training_agent.py
